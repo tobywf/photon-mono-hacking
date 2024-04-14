@@ -1,0 +1,12 @@
+[default.general]
+chip = "STM32F103ZE"
+
+[default.rtt]
+enabled = true
+log_enabled = true
+log_path = "./logs"
+show_timestamps = false
+channels = [
+    { up = 0, down = 0, name = "Terminal", up_mode = "NoBlockSkip", format = "String" },
+    { up = 1, down = 0, name = "Binary", up_mode = "BlockIfFull", format = "BinaryLE" },
+]

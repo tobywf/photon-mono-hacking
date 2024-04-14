@@ -1,0 +1,6 @@
+/target
+
+/firmware/*
+!/firmware/.gitkeep
+/logs/*
+!/logs/.gitkeep
