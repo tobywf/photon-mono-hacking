@@ -1,6 +1,6 @@
-# Dump the Anycubic Photon Mono 4k firmware
+# Hack the Anycubic Photon Mono 4k resin 3D printer firmware
 
-This repository contains my notes and code for dumping the firmware of a Anycubic Photon Mono 4k 3d printer (at least the MCU and Flash, not the FPGA). It's heavily based on nviennot's [reverse engineering the Anycubic Photon Mono 4K](https://github.com/nviennot/reversing-mono4k) guide.
+This repository contains my notes and code for hacking the firmware of a Anycubic Photon Mono 4k 3D printer using Rust (at least the MCU and Flash, not the FPGA). It's heavily based on nviennot's [reverse engineering the Anycubic Photon Mono 4K](https://github.com/nviennot/reversing-mono4k) guide.
 
 The only innovation I have is that this repo contains code to dump the external flash via RTT instead of the semi-hosting method in nviennot's guide. The benefits are:
 
@@ -66,6 +66,8 @@ Currently, `probe-rs` cannot dump firmware. (The `download` command is for downl
 
 ## How to dump the external flash
 
+**WARNING**: Back up the MCU firmware and ensure you can restore it before running this. The MCU firmware will be overwritten!
+
 Assuming the interface/debug probe is supported by `probe-rs`, simply run `cargo embed`. This will build the code, upload the code, and start an RTT session/terminal. The RTT information is defined in `src/main.rs` and `Embed.toml`. The RTT terminal should print the dumping progress in the first tab; the second tab is used to send the flash contents to the host. The logs of the dumping operation are also configured to be saved (via `Embed.toml`), but note this only happens once the RTT terminal is closed! The logs will appear in the `logs/` directory, one for the text and one for the binary.
 
 The dumping operation itself takes some time depending on the speed of the probe (I think). For me, it was around 6 minutes. This roughly matches the semi-hosting approach.
@@ -75,6 +77,8 @@ To compare the dumped flash against an image dumped by someone else, run:
 ```bash
 cmp 'firmware/ext.bin' 'logs/photon-mono-dump_STM32F103ZE_1713048730062_channel1.dat'
 ```
+
+**UPDATE**: The above method is still the easiest; however I have made a [proof-of-concept called `rs-flash`](https://github.com/tobywf/rs-flash) that can dump the external flash without modifying/overwriting the MCU firmware.
 
 ## How to restore the MCU firmware
 
@@ -100,8 +104,4 @@ It always produced an error for me, but after verifying the image with OpenOCD, 
 
 ## How to restore the external flash
 
-I don't know an easy way to do this. Presumably use the same method that was used to modify the external flash in the same place.
-
-The main issue is that down channels seem to be poorly supported in `probe-rs`. Otherwise, it should be possible to use a similar approach to dumping the firmware, but in reverse by piping data via RTT from the host to the target. This is necessary, as the external flash size is much larger than the MCU flash size.
-
-Alternatively, With access to the MCU it should be possible to write code to load the external flash image from a USB drive, and restore the flash that way.
+I don't know an easy way to do this with probe-rs or OpenOCD. However, I have made a [proof-of-concept called `rs-flash`](https://github.com/tobywf/rs-flash) that can load the external flash.

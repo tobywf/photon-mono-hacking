@@ -4,3 +4,6 @@
 !/firmware/.gitkeep
 /logs/*
 !/logs/.gitkeep
+
+.DS_Store
+
